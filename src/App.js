@@ -1,57 +1,81 @@
 import React, { Component } from 'react';
-import Gifs from './component/Gifs';
-import uuid from 'uuid';
+import gifsJSON from './gifs.json';
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      gifs: []
+      gifsJSON,
+      score: 0,
+      topScore: 0
     }
   }
 
-  getGifs() {
-    this.setState({
-      gifs: [
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/B2vBunhgt9Pc4/giphy.gif'
-        },
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/xXxIj4rrbo92g/giphy.gif'
-        },
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/26FmRLBRZfpMNwWdy/giphy.gif'
-        },
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/11EEXw1EIEoHaE/giphy.gif'
-        },
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/QYrBsJj6vNCak/giphy.gif'
-        },
-        {
-          id: uuid.v4(),
-          source: 'https://media.giphy.com/media/wmgsmee4a4vx6/giphy.gif'
+  handleClick = id => {
+    let clickCheck = this.state.gifsJSON.filter(gif => gif.id !== id);
+
+    let clickedGif = clickCheck[0];
+
+    if (this.state.score < 12) {
+      if (clickedGif.clicked === false) {
+        this.setState({ score: this.state.score + 1 });
+        clickedGif.clicked = true;
+      } else {
+        this.setState({ score: 0 });
+        
+        for (let i = 0; i < clickCheck.length; i++) {
+          clickCheck[i].clicked = false;
         }
-      ]
-    });
+      }
+    } else {
+      this.setState({ score: 0 })
+    }
+
+    if (this.state.score >= this.state.topScore) {
+      this.setState({ topScore: this.state.score })
+    }
   }
 
-  componentDidMount() {
-    this.getGifs();
-  }
 
   render() {
+    const gifStyle = {
+      margin: '1rem',
+      height: '200px',
+      width: '300px'
+    }
+
+    function shuffleGifs(array) {
+      let i = array.length - 1;
+      for (; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+      return array;
+    }
+
+    const shuffledGifs = shuffleGifs(this.state.gifsJSON);
+
+    let gifArray = shuffledGifs.map(gif => {
+      return (
+        <img key={gif.id} onClick={this.handleClick} src={gif.source} alt="michaelscott" style={gifStyle}></img>
+      )
+    });
+
     return (
       <div className="container text-center">
         <div className="row">
           <div className="col-lg-12">
-            <h2 className="display-2">THIS IS THE GAME</h2>
-            <Gifs gifs={this.state.gifs.id.bind(this)} />
+            <br />
+            <h2 className="display-2">Sean's Everyday Moods</h2>
+            <br />
+            <h4>Your compatibility score: {this.state.score}</h4>
+            <br />
+            <h4>Highest compatibility: {this.state.topScore}</h4>
+            <br />
+            {gifArray}
+            <br />
           </div>
         </div>
       </div>
